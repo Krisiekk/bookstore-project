@@ -45,11 +45,11 @@ public class SecurityConfig {
                                 "/v3/api-docs/**"
                         ).permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/api/books/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/books", "/api/books/**").permitAll()
 
-                        .requestMatchers(HttpMethod.POST, "/api/books/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/books/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/books/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/books", "/api/books/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/books", "/api/books/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/books", "/api/books/**").hasRole("ADMIN")
 
                         .requestMatchers(HttpMethod.POST, "/api/reservations/books/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/reservations/my").hasAnyRole("USER", "ADMIN")

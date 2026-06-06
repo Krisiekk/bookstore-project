@@ -7,11 +7,12 @@ import org.springframework.web.bind.annotation.*;
 import pl.kpietrzak.bookstore.dto.reservation.ReservationResponse;
 import pl.kpietrzak.bookstore.dto.reservation.UpdateReservationStatusRequest;
 import pl.kpietrzak.bookstore.service.ReservationService;
-
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/reservations")
+@SecurityRequirement(name = "bearerAuth")
 public class ReservationController {
 
     private final ReservationService reservationService;

@@ -21,8 +21,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private  final JwtService jwtService;
     private final CustomUserDetailsService customUserDetailsService;
 
-    public JwtAuthenticationFilter(UserDetailsService userDetailsService, CustomUserDetailsService customUserDetailsService) {
-        this.jwtService = new JwtService();
+    public JwtAuthenticationFilter(JwtService jwtService, CustomUserDetailsService customUserDetailsService
+    ) {
+        this.jwtService = jwtService;
         this.customUserDetailsService = customUserDetailsService;
     }
 
@@ -59,8 +60,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 }
 
-                filterChain.doFilter(request, response);
         }
+
+        filterChain.doFilter(request, response);
     }
 
 
