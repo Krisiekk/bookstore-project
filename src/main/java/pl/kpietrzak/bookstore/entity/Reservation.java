@@ -1,6 +1,7 @@
 package pl.kpietrzak.bookstore.entity;
 
 import jakarta.persistence.*;
+import pl.kpietrzak.bookstore.enums.ReservationStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,6 +27,11 @@ public class Reservation {
     @ManyToOne(optional = false)
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private ReservationStatus status = ReservationStatus.PENDING;
+
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
