@@ -15,6 +15,7 @@ import pl.kpietrzak.bookstore.mapper.ReservationMapper;
 import pl.kpietrzak.bookstore.repository.BookRepository;
 import pl.kpietrzak.bookstore.repository.ReservationRepository;
 import pl.kpietrzak.bookstore.repository.UserRepository;
+import pl.kpietrzak.bookstore.notification.NotificationService;
 
 import java.util.List;
 
@@ -25,12 +26,14 @@ public class ReservationService {
     private BookRepository bookRepository;
     private UserRepository userRepository;
     private ReservationMapper reservationMapper;
+    private  NotificationService notificationService;
 
-    public ReservationService(ReservationRepository reservationRepository, BookRepository bookRepository, UserRepository userRepository, ReservationMapper reservationMapper) {
+    public ReservationService(ReservationRepository reservationRepository, BookRepository bookRepository, UserRepository userRepository, NotificationService notificationService,ReservationMapper reservationMapper) {
         this.reservationRepository = reservationRepository;
         this.bookRepository = bookRepository;
         this.userRepository = userRepository;
         this.reservationMapper = reservationMapper;
+        this.notificationService = notificationService;
     }
 
 
@@ -46,6 +49,7 @@ public class ReservationService {
         reservation.setStatus(ReservationStatus.PENDING);
 
         Reservation savedReservation = reservationRepository.save(reservation);
+        notificationService.notifyReservationCreated(savedReservation);
 
         return reservationMapper.toResponse(savedReservation);
 
