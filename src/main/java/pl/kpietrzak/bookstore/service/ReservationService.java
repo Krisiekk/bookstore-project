@@ -63,7 +63,7 @@ public class ReservationService {
                 .toList();
   }
 
-  public ReservationResponse updateBookStatus(Long reservationId, UpdateReservationStatusRequest request) {
+  public ReservationResponse updateReservationStatus(Long reservationId, UpdateReservationStatusRequest request) {
         Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(() -> new ReservationNotFoundException(reservationId));
 
         reservation.setStatus(request.getStatus());
