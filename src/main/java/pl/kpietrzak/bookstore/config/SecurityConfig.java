@@ -14,6 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import pl.kpietrzak.bookstore.security.CustomUserDetailsService;
 import pl.kpietrzak.bookstore.security.JwtAuthenticationFilter;
+import org.springframework.http.HttpMethod;
 
 @Configuration
 public class SecurityConfig {
@@ -44,10 +45,11 @@ public class SecurityConfig {
                                 "/v3/api-docs/**"
                         ).permitAll()
 
-                        .requestMatchers(
-                                "/api/books",
-                                "/api/books/**"
-                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/books/**").permitAll()
+
+                        .requestMatchers(HttpMethod.POST, "/api/books/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/books/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/books/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated()
                 )
