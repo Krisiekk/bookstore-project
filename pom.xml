@@ -135,6 +135,15 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.12</version>
+                <configuration>
+                    <excludes>
+                        <exclude>pl/kpietrzak/bookstore/config/**</exclude>
+                        <exclude>pl/kpietrzak/bookstore/dto/**</exclude>
+                        <exclude>pl/kpietrzak/bookstore/entity/**</exclude>
+                        <exclude>pl/kpietrzak/bookstore/enums/**</exclude>
+                        <exclude>pl/kpietrzak/bookstore/BookstoreProjectApplication*</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
