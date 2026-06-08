@@ -11,6 +11,9 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+/**
+ * Service responsible for generating, parsing, and validating JWT tokens.
+ */
 @Service
 public class JwtService {
     @Value("${app.jwt.secret}")
@@ -19,6 +22,12 @@ public class JwtService {
     @Value("${app.jwt.expiration}")
     private long jwtExpiration;
 
+    /**
+     * Generates a signed JWT token for the provided user details.
+     *
+     * @param userDetails authenticated user details
+     * @return signed JWT token
+     */
     public String generateToken(UserDetails userDetails) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
@@ -35,6 +44,13 @@ public class JwtService {
         return extractAllClaims(token).getSubject();
     }
 
+    /**
+     * Validates token ownership and expiration.
+     *
+     * @param token JWT token from the request
+     * @param userDetails user details loaded from the application
+     * @return true when the token belongs to the user and is not expired
+     */
     public boolean isTokenValid(String token, UserDetails userDetails) {
         String username = extractUsername(token);
 

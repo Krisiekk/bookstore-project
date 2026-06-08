@@ -16,6 +16,9 @@ import pl.kpietrzak.bookstore.security.CustomUserDetailsService;
 import pl.kpietrzak.bookstore.security.JwtAuthenticationFilter;
 import org.springframework.http.HttpMethod;
 
+/**
+ * Configures stateless JWT security and role-based access rules for the REST API.
+ */
 @Configuration
 public class SecurityConfig {
 
@@ -30,6 +33,9 @@ public class SecurityConfig {
         this.customUserDetailsService = customUserDetailsService;
     }
 
+    /**
+     * Defines public endpoints, role restrictions, and JWT filter registration.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http

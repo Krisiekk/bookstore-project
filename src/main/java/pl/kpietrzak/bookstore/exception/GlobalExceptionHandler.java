@@ -9,6 +9,9 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Centralized exception handler that converts application exceptions into HTTP responses.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(BookNotFoundException.class)

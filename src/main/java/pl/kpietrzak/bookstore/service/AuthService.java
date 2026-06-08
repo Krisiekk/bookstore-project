@@ -13,6 +13,9 @@ import pl.kpietrzak.bookstore.repository.UserRepository;
 import pl.kpietrzak.bookstore.security.CustomUserDetailsService;
 import pl.kpietrzak.bookstore.security.JwtService;
 
+/**
+ * Service responsible for user registration, login, password encoding, and JWT generation.
+ */
 @Service
 public class AuthService {
     private final UserRepository userRepository;
@@ -29,6 +32,12 @@ public class AuthService {
         this.authenticationManager = authenticationManager;
     }
 
+    /**
+     * Registers a new user with the default USER role and returns an authentication token.
+     *
+     * @param request registration data
+     * @return authentication response containing JWT and user data
+     */
     public AuthResponse register(RegisterRequest request) {
         if(userRepository.existsByUsername(request.getUsername())) {
             throw new IllegalArgumentException("Username is already in use");
@@ -51,6 +60,12 @@ public class AuthService {
 
     }
 
+    /**
+     * Authenticates an existing user and returns a new JWT token.
+     *
+     * @param request login credentials
+     * @return authentication response containing JWT and user data
+     */
     public AuthResponse login(LoginRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 

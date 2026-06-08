@@ -6,6 +6,9 @@ import pl.kpietrzak.bookstore.repository.UserRepository;
 
 import javax.management.Notification;
 
+/**
+ * Service that sends reservation notifications using the configured notification strategy.
+ */
 @Service
 public class NotificationService {
 

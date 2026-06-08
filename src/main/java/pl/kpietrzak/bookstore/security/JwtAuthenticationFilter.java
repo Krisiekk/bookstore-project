@@ -15,6 +15,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * Filter that reads JWT tokens from the Authorization header and authenticates requests.
+ */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 

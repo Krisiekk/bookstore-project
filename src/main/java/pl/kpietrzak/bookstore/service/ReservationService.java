@@ -19,6 +19,10 @@ import pl.kpietrzak.bookstore.notification.NotificationService;
 
 import java.util.List;
 
+/**
+ * Service responsible for reservation business logic.
+ * It creates reservations for authenticated users and allows admins to update reservation statuses.
+ */
 @Service
 public class ReservationService {
 
@@ -37,6 +41,13 @@ public class ReservationService {
     }
 
 
+  /**
+   * Creates a reservation for the currently authenticated user.
+   *
+   * @param bookId id of the book to reserve
+   * @param authentication current authenticated user
+   * @return created reservation response
+   */
   public ReservationResponse reserveBook(Long bookId, Authentication authentication) {
         User user = getCurrentUser(authentication);
 
@@ -67,6 +78,13 @@ public class ReservationService {
                 .toList();
   }
 
+  /**
+   * Updates the status of an existing reservation.
+   *
+   * @param reservationId id of the reservation to update
+   * @param request new reservation status
+   * @return updated reservation response
+   */
   public ReservationResponse updateReservationStatus(Long reservationId, UpdateReservationStatusRequest request) {
         Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(() -> new ReservationNotFoundException(reservationId));
 

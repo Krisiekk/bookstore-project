@@ -10,6 +10,9 @@ import pl.kpietrzak.bookstore.repository.BookRepository;
 
 import  java.util.List;
 
+/**
+ * Service responsible for book management business logic.
+ */
 @Service
 public class BookService {
 
