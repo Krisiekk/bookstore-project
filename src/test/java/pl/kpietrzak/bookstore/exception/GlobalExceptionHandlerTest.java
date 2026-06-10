@@ -37,6 +37,30 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    void shouldHandleLoanNotFoundException() {
+        ResponseEntity<Map<String, Object>> response =
+                handler.handleLoanNotFound(new LoanNotFoundException(3L));
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().get("status")).isEqualTo(404);
+        assertThat(response.getBody().get("error")).isEqualTo("Not Found");
+        assertThat(response.getBody().get("message")).isEqualTo("Loan not found with id: 3");
+    }
+
+    @Test
+    void shouldHandleBookAlreadyLoanedException() {
+        ResponseEntity<Map<String, Object>> response =
+                handler.handleBookAlreadyLoaned(new BookAlreadyLoanedException(4L));
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().get("status")).isEqualTo(400);
+        assertThat(response.getBody().get("error")).isEqualTo("Bad Request");
+        assertThat(response.getBody().get("message")).isEqualTo("Book is already loaned with id: 4");
+    }
+
+    @Test
     void shouldHandleIllegalArgumentException() {
         ResponseEntity<Map<String, Object>> response =
                 handler.handleIllegalArgument(new IllegalArgumentException("Bad request message"));

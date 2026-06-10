@@ -72,4 +72,26 @@ public class GlobalExceptionHandler {
 
         return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
+
+    @ExceptionHandler(LoanNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleLoanNotFound(LoanNotFoundException exception){
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.NOT_FOUND.value());
+        response.put("error", "Not Found");
+        response.put("message", exception.getMessage());
+
+        return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(BookAlreadyLoanedException.class)
+    public ResponseEntity<Map<String, Object>> handleBookAlreadyLoaned(BookAlreadyLoanedException exception){
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("error", "Bad Request");
+        response.put("message", exception.getMessage());
+
+        return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
 }
