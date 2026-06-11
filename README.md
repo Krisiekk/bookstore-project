@@ -217,6 +217,12 @@ Raport JaCoCo potwierdza pokrycie powyżej wymaganego progu 80% dla mierzonej lo
 
 ![JaCoCo report](docs/jacoco-report.png)
 
+### Uruchomienie w Docker Compose
+
+Kontenery `bookstore-app` i `bookstore-postgres` działają równolegle, a aplikacja Spring Boot jest wystawiona na porcie `8080`.
+
+![Docker Compose app](docs/docker-compose-app.png)
+
 ## ERD / Schemat Bazy Danych
 
 ![ERD diagram](docs/erd.png)
