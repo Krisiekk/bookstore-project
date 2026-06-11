@@ -1,0 +1,10 @@
+.git
+.idea
+.mvn/wrapper/maven-wrapper.jar
+target
+docs
+*.iml
+*.log
+.env
+.env.*
+README_ANG.md

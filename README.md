@@ -1,6 +1,6 @@
 # Bookstore REST API
 
-Bookstore REST API to backendowa aplikacja do zarządzania książkami i rezerwacjami. Projekt umożliwia rejestrację użytkowników, logowanie z użyciem JWT, kontrolę dostępu na podstawie ról `USER` i `ADMIN`, zarządzanie książkami oraz obsługę rezerwacji.
+Bookstore REST API to backendowa aplikacja do zarządzania książkami, rezerwacjami, wypożyczeniami i zwrotami. Projekt umożliwia rejestrację użytkowników, logowanie z użyciem JWT, kontrolę dostępu na podstawie ról `USER` i `ADMIN`, zarządzanie książkami oraz obsługę pełnego procesu od rezerwacji do zwrotu książki.
 
 ## Główne Funkcjonalności
 
@@ -14,6 +14,10 @@ Bookstore REST API to backendowa aplikacja do zarządzania książkami i rezerwa
 - Przeglądanie własnych rezerwacji
 - Zarządzanie wszystkimi rezerwacjami przez administratora
 - Zmiana statusu rezerwacji przez administratora
+- Tworzenie wypożyczenia na podstawie zaakceptowanej rezerwacji
+- Przeglądanie historii wypożyczeń użytkownika
+- Zarządzanie wszystkimi wypożyczeniami przez administratora
+- Obsługa zwrotu książki
 - Dokumentacja Swagger/OpenAPI
 - Baza danych PostgreSQL
 - Migracje bazy danych Flyway
@@ -57,9 +61,9 @@ DTO -> Mapper -> Entity
 
 Projekt definiuje dwie role: `USER` oraz `ADMIN`.
 
-`USER` może przeglądać książki, rezerwować książki oraz przeglądać swoje rezerwacje.
+`USER` może przeglądać książki, rezerwować książki, przeglądać swoje rezerwacje oraz historię swoich wypożyczeń.
 
-`ADMIN` ma uprawnienia użytkownika oraz dodatkowo może tworzyć, edytować i usuwać książki, przeglądać wszystkie rezerwacje oraz zmieniać statusy rezerwacji.
+`ADMIN` ma uprawnienia użytkownika oraz dodatkowo może tworzyć, edytować i usuwać książki, przeglądać wszystkie rezerwacje, zmieniać statusy rezerwacji, tworzyć wypożyczenia i obsługiwać zwroty.
 
 | Akcja | Publiczne | USER | ADMIN |
 | --- | --- | --- | --- |
@@ -74,6 +78,10 @@ Projekt definiuje dwie role: `USER` oraz `ADMIN`.
 | Przeglądanie własnych rezerwacji | Nie | Tak | Tak |
 | Przeglądanie wszystkich rezerwacji | Nie | Nie | Tak |
 | Zmiana statusu rezerwacji | Nie | Nie | Tak |
+| Utworzenie wypożyczenia | Nie | Nie | Tak |
+| Przeglądanie własnych wypożyczeń | Nie | Tak | Tak |
+| Przeglądanie wszystkich wypożyczeń | Nie | Nie | Tak |
+| Zwrot książki | Nie | Nie | Tak |
 
 ## Security i JWT
 
@@ -115,6 +123,28 @@ Reguły dostępu są skonfigurowane w klasie `SecurityConfig`. `JwtAuthenticatio
 | `GET` | `/api/reservations` | ADMIN | Pobranie wszystkich rezerwacji |
 | `PATCH` | `/api/reservations/{reservationId}/status` | ADMIN | Zmiana statusu rezerwacji |
 
+### Loans
+
+| Metoda | URL | Dostęp | Opis |
+| --- | --- | --- | --- |
+| `POST` | `/api/loans/reservations/{reservationId}` | ADMIN | Utworzenie wypożyczenia z zaakceptowanej rezerwacji |
+| `PATCH` | `/api/loans/{loanId}/return` | ADMIN | Zwrot wypożyczonej książki |
+| `GET` | `/api/loans/my` | USER / ADMIN | Pobranie wypożyczeń aktualnego użytkownika |
+| `GET` | `/api/loans` | ADMIN | Pobranie wszystkich wypożyczeń |
+
+## Workflow Rezerwacji i Wypożyczenia
+
+Wypożyczenie jest tworzone na podstawie zaakceptowanej rezerwacji.
+
+1. Użytkownik rezerwuje książkę przez `POST /api/reservations/books/{bookId}`.
+2. Rezerwacja otrzymuje status `PENDING`.
+3. Administrator sprawdza rezerwacje przez `GET /api/reservations`.
+4. Administrator akceptuje rezerwację przez `PATCH /api/reservations/{reservationId}/status` z wartością `ACCEPTED`.
+5. Administrator tworzy wypożyczenie przez `POST /api/loans/reservations/{reservationId}`.
+6. Wypożyczenie otrzymuje status `ACTIVE`, a książka zostaje oznaczona jako niedostępna.
+7. Administrator wykonuje zwrot przez `PATCH /api/loans/{loanId}/return`.
+8. Wypożyczenie otrzymuje status `RETURNED`, a książka ponownie staje się dostępna.
+
 ## Swagger / OpenAPI
 
 Swagger UI jest dostępny pod adresem:
@@ -125,18 +155,81 @@ http://localhost:8080/swagger-ui.html
 
 Swagger pozwala przeglądać i testować endpointy API. Dla endpointów chronionych należy użyć przycisku `Authorize` i wkleić token JWT.
 
+## Screeny z Działania Aplikacji
+
+### Przegląd Endpointów
+
+Swagger UI pokazuje dostępne kontrolery REST, w tym endpointy książek, rezerwacji i wypożyczeń.
+
+![Swagger overview](docs/swagger-overview.png)
+
+### Autoryzacja JWT w Swaggerze
+
+Po zalogowaniu token JWT jest wklejany w oknie `Authorize`, dzięki czemu można testować endpointy chronione rolami.
+
+![Swagger authorization](docs/swagger-authorization.png)
+
+### Utworzenie Rezerwacji
+
+Użytkownik tworzy rezerwację książki. Nowa rezerwacja otrzymuje status `PENDING`.
+
+![Create reservation](docs/create-reservation.png)
+
+### Lista Rezerwacji
+
+Administrator może przeglądać wszystkie rezerwacje użytkowników i na tej podstawie decydować o akceptacji.
+
+![Reservations list](docs/reservations-list.png)
+
+### Akceptacja Rezerwacji
+
+Administrator zmienia status rezerwacji na `ACCEPTED`, co pozwala utworzyć wypożyczenie.
+
+![Accept reservation](docs/accept-reservation.png)
+
+### Utworzenie Wypożyczenia
+
+Administrator tworzy wypożyczenie na podstawie zaakceptowanej rezerwacji. Wypożyczenie otrzymuje status `ACTIVE`.
+
+![Create loan](docs/create-loan.png)
+
+### Historia Wypożyczeń Użytkownika
+
+Użytkownik może sprawdzić swoje wypożyczenia przez endpoint `/api/loans/my`.
+
+![My loans](docs/my-loans.png)
+
+### Zwrot Książki
+
+Administrator oznacza wypożyczenie jako zwrócone. W odpowiedzi widoczny jest status `RETURNED` oraz data `returnedAt`.
+
+![Return loan](docs/return-loan.png)
+
+### Wynik Testów
+
+Projekt zawiera testy jednostkowe oraz testy kontrolerów. Wynik `BUILD SUCCESS` potwierdza poprawne wykonanie zestawu testów.
+
+![Tests success](docs/tests-success.png)
+
+### Raport Pokrycia JaCoCo
+
+Raport JaCoCo potwierdza pokrycie powyżej wymaganego progu 80% dla mierzonej logiki aplikacji.
+
+![JaCoCo report](docs/jacoco-report.png)
+
 ## ERD / Schemat Bazy Danych
 
 ![ERD diagram](docs/erd.png)
 
-Diagram ERD przedstawia tabele `users`, `books` i `reservations` oraz relacje między nimi. Jeden użytkownik może mieć wiele rezerwacji. Jedna książka może występować w wielu rezerwacjach. Każda rezerwacja należy dokładnie do jednego użytkownika i jednej książki.
+Diagram ERD przedstawia tabele `users`, `books`, `reservations`, `loans` oraz techniczną tabelę `flyway_schema_history`. Jeden użytkownik może mieć wiele rezerwacji i wypożyczeń. Jedna książka może występować w wielu rezerwacjach i wypożyczeniach historycznych. Każde wypożyczenie jest powiązane z jedną zaakceptowaną rezerwacją.
 
 ## Migracje Flyway
 
-Schemat bazy danych jest tworzony przez migracje Flyway. Plik migracji znajduje się w:
+Schemat bazy danych jest tworzony przez migracje Flyway. Migracje znajdują się w:
 
 ```text
 src/main/resources/db/migration/V1__init_database.sql
+src/main/resources/db/migration/V2__create_loans_table.sql
 ```
 
 Flyway wykonuje migracje automatycznie przy starcie aplikacji. Hibernate dodatkowo waliduje zgodność encji ze schematem bazy danych.
@@ -159,15 +252,16 @@ Wymagania:
 - Maven albo Maven Wrapper
 - Docker
 
-Uruchom PostgreSQL:
+Uruchom aplikację razem z PostgreSQL w Dockerze:
 
 ```bash
-docker compose up -d
+docker compose up --build
 ```
 
-Uruchom aplikację Spring Boot lokalnie:
+Alternatywnie możesz uruchomić tylko PostgreSQL w Dockerze i aplikację Spring Boot lokalnie:
 
 ```bash
+docker compose up -d db
 ./mvnw spring-boot:run
 ```
 
@@ -185,13 +279,30 @@ http://localhost:8080/swagger-ui.html
 
 ## Docker Compose
 
-Obecny plik `docker-compose.yml` uruchamia kontener PostgreSQL używany przez aplikację.
+Plik `docker-compose.yml` uruchamia aplikację Spring Boot oraz bazę PostgreSQL.
 
 ```bash
-docker compose up -d
+docker compose up --build
 ```
 
-Aplikacja Spring Boot jest obecnie uruchamiana lokalnie przez Maven i łączy się z PostgreSQL pod adresem `localhost:5432`.
+Po uruchomieniu kontenerów aplikacja jest dostępna pod adresem:
+
+```text
+http://localhost:8080
+```
+
+Swagger UI jest dostępny pod adresem:
+
+```text
+http://localhost:8080/swagger-ui.html
+```
+
+Serwisy Docker Compose:
+
+- `app` - aplikacja Spring Boot
+- `db` - baza danych PostgreSQL
+
+Konfiguracja połączenia z bazą jest przekazywana przez zmienne środowiskowe `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME` i `SPRING_DATASOURCE_PASSWORD`. Lokalnie aplikacja nadal może być uruchamiana przez Maven, ponieważ `application.properties` zawiera wartości domyślne dla środowiska lokalnego.
 
 ## Domyślne Konto Administratora
 
@@ -211,6 +322,8 @@ Projekt zawiera:
 - Testy kontrolerów
 - Testy mapperów
 - Testy security
+- Testy filtra JWT
+- Testy workflow wypożyczeń
 - Testy modułu notification
 - Testy globalnej obsługi wyjątków
 
@@ -218,6 +331,13 @@ Uruchomienie testów:
 
 ```bash
 ./mvnw clean test
+```
+
+Aktualny wynik testów:
+
+```text
+Tests run: 74, Failures: 0, Errors: 0, Skipped: 1
+BUILD SUCCESS
 ```
 
 Projekt jest skonfigurowany pod Javę 21. Przy uruchamianiu testów na nowszym JDK mogą wystąpić problemy kompatybilności agentów Mockito albo JaCoCo. Oczekiwanym środowiskiem testowym jest JDK 21.
@@ -236,7 +356,13 @@ Lokalizacja raportu:
 target/site/jacoco/index.html
 ```
 
-Aktualny wygenerowany raport pokazuje pokrycie powyżej 80% dla mierzonej logiki aplikacji.
+Aktualny wygenerowany raport pokazuje pokrycie powyżej 80% dla mierzonej logiki aplikacji:
+
+```text
+Instruction coverage: 92.15%
+Line coverage: 95.78%
+Branch coverage: 87.50%
+```
 
 ## Wykluczenia JaCoCo
 
@@ -309,6 +435,54 @@ Dostępne statusy to `PENDING`, `ACCEPTED`, `REJECTED` i `CANCELLED`.
 }
 ```
 
+### Utworzenie Wypożyczenia
+
+Wypożyczenie tworzy administrator na podstawie zaakceptowanej rezerwacji:
+
+```http
+POST /api/loans/reservations/1
+```
+
+Przykładowa odpowiedź:
+
+```json
+{
+  "id": 1,
+  "reservationId": 1,
+  "userId": 3,
+  "username": "user1",
+  "bookId": 1,
+  "bookTitle": "Clean Code",
+  "borrowedAt": "2026-06-11T14:51:00.206533",
+  "returnedAt": null,
+  "status": "ACTIVE"
+}
+```
+
+### Zwrot Książki
+
+Zwrot wykonuje administrator:
+
+```http
+PATCH /api/loans/1/return
+```
+
+Przykładowa odpowiedź:
+
+```json
+{
+  "id": 1,
+  "reservationId": 1,
+  "userId": 3,
+  "username": "user1",
+  "bookId": 1,
+  "bookTitle": "Clean Code",
+  "borrowedAt": "2026-06-11T14:51:00.206533",
+  "returnedAt": "2026-06-11T14:53:24.102091",
+  "status": "RETURNED"
+}
+```
+
 ## Status Projektu
 
-Projekt implementuje wymagane funkcjonalności backendowe: REST API, JWT authentication, RBAC, PostgreSQL, Flyway, Swagger, testy, raport JaCoCo, Strategy Pattern, polimorfizm oraz dokumentację projektu.
+Projekt implementuje wymagane funkcjonalności backendowe: REST API, JWT authentication, RBAC, PostgreSQL, Flyway, Swagger, rezerwacje, wypożyczenia, zwroty, testy, raport JaCoCo, Strategy Pattern, polimorfizm oraz dokumentację projektu ze screenami.

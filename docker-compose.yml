@@ -1,4 +1,18 @@
 services:
+  app:
+    build: .
+    container_name: bookstore-app
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/bookstore
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      APP_JWT_SECRET: ThisIsASecretKeyForBookstoreProjectJwtAuthentication123456789
+      APP_JWT_EXPIRATION: 86400000
+    ports:
+      - "8080:8080"
+
   db:
     image: postgres:16
     container_name: bookstore-postgres
